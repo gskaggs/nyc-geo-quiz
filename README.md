@@ -29,17 +29,19 @@ just open   # serve + open in browser
 |---|---|---|
 | Map library | [Leaflet 1.9](https://leafletjs.com) (CDN) | Lightweight, mature, trivial GeoJSON overlays. MapLibre GL and OpenLayers were considered but are heavier than this needs. |
 | Basemap | CARTO `light_nolabels` raster tiles | The tiles draw all street/area **geometry** but contain **zero labels**, so the app controls exactly which names appear — the core requirement for partial-information quizzing. |
-| Data | Inline GeoJSON in `js/questions.js` | Enough for scaffolding. Prince St uses real OSM geometry (via Nominatim); Staten Island is a simplified real polygon; Nolita is hand-approximated. |
+| Data | Inline GeoJSON in `js/questions.js` + generated `js/questions_generated.js` | Hand-authored questions use real OSM geometry (Nominatim/Overpass). The bulk of the bank (parks, neighborhoods, SoHo/Village streets) is produced by `scripts/generate_questions.py` from pedia-cities neighborhood polygons, Nominatim park polygons, and Overpass street geometry. |
 
 ## Structure
 
 ```
-Justfile          run / open / report recipes
-index.html        app shell (sidebar + map)
-css/style.css     layout, highlight + label styles
-js/questions.js   the question data model + sample question bank
-js/app.js         map init, question renderer, reveal/prev/next controls
-report/           verification report (screenshots of each question type)
+Justfile                      run / open recipes
+index.html                    app shell (sidebar + map)
+css/style.css                 layout, highlight + label styles
+js/questions.js               question data model + hand-authored questions
+js/questions_generated.js     generated question bank (do not edit by hand)
+scripts/generate_questions.py generator: parks, neighborhoods, SoHo/Village streets
+js/app.js                     map init, question renderer, keyboard + hover behavior
+report/                       verification report (screenshots of each question type)
 ```
 
 ## Question data model

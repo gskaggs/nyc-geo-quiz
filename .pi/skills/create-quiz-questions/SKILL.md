@@ -5,7 +5,17 @@ description: How to add new questions to the NYC Geo Quiz (js/questions.js) — 
 
 # Creating NYC Geo Quiz questions
 
-Questions live in `js/questions.js` as entries in the `QUESTIONS` array. Each one shows a
+**For bulk additions (many parks / neighborhoods / streets at once), extend the spec lists
+at the top of `scripts/generate_questions.py` and re-run it** (responses are cached in
+`.cache/`; Overpass is slow and rate-limited, so re-runs resume where they left off). It
+writes `js/questions_generated.js`, auto-picks context per the preferences below (nearest
+same-borough neighborhoods for areas, nearest batch streets for streets), and filters
+context names that would leak the answer (e.g. "East Williamsburg" for Williamsburg).
+Spot-check a sample of generated questions with screenshots afterward — helpers:
+`renderQuestion(QUESTIONS.findIndex(q=>q.id==='<id>'))` via `agent-browser eval`.
+
+Hand-authored questions live in `js/questions.js` as entries in the `QUESTIONS` array.
+Question types: `borough | neighborhood | park | street | landmark`. Each one shows a
 highlighted-but-**unnamed** target on a label-free basemap, plus **named** context features.
 The user is learning real geography from these — **a misplaced highlight or mislabeled
 context feature teaches them something wrong**, so accuracy verification is not optional.
