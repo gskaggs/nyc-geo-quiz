@@ -9,8 +9,8 @@ html, body {
 body { display: flex; }
 
 #sidebar {
-  width: 400px;
-  flex: 0 0 400px;
+  width: 30%;
+  flex: 0 0 30%;
   padding: 16px;
   background: #1c2431;
   color: #eef1f6;
