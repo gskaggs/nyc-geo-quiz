@@ -29,6 +29,21 @@ let questionLayer = L.layerGroup().addTo(map);
 let hoverLayer = L.layerGroup().addTo(map);
 let currentIndex = 0;
 
+// Display order over QUESTIONS: identity by default, shuffled when enabled.
+let order = [];
+let shuffled = false;
+
+function resetOrder() {
+  order = QUESTIONS.map((_, i) => i);
+}
+
+function shuffleOrder() {
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+}
+
 const HOVER_STYLE = { color: "#2563eb", weight: 6, opacity: 0.85 };
 
 /**
@@ -108,8 +123,8 @@ function targetLayer(geometry) {
 }
 
 function renderQuestion(index) {
-  currentIndex = (index + QUESTIONS.length) % QUESTIONS.length;
-  const q = QUESTIONS[currentIndex];
+  currentIndex = (index + order.length) % order.length;
+  const q = QUESTIONS[order[currentIndex]];
 
   questionLayer.clearLayers();
   hoverLayer.clearLayers();
@@ -120,7 +135,7 @@ function renderQuestion(index) {
   document.getElementById("question-type").textContent = q.type;
   document.getElementById("question-prompt").textContent = q.prompt;
   document.getElementById("question-counter").textContent =
-    `${currentIndex + 1} / ${QUESTIONS.length}`;
+    `${currentIndex + 1} / ${order.length}`;
   const answerEl = document.getElementById("answer");
   answerEl.textContent = q.answer;
   answerEl.classList.add("hidden");
@@ -132,9 +147,10 @@ function renderQuestion(index) {
 
 function buildQuestionList() {
   const list = document.getElementById("question-list");
-  QUESTIONS.forEach((q, i) => {
+  list.innerHTML = "";
+  order.forEach((qi, i) => {
     const btn = document.createElement("button");
-    btn.textContent = `${i + 1}. ${q.prompt}`;
+    btn.textContent = `${i + 1}. ${QUESTIONS[qi].prompt}`;
     btn.addEventListener("click", () => renderQuestion(i));
     list.appendChild(btn);
   });
@@ -148,6 +164,18 @@ document.getElementById("next-btn").addEventListener("click", () =>
 );
 document.getElementById("reveal-btn").addEventListener("click", () => {
   document.getElementById("answer").classList.remove("hidden");
+});
+
+// Shuffle toggle: on = random order, off = original order. The question being
+// viewed stays the same; only its position in the deck changes.
+document.getElementById("shuffle-btn").addEventListener("click", (e) => {
+  const viewing = order[currentIndex];
+  shuffled = !shuffled;
+  resetOrder();
+  if (shuffled) shuffleOrder();
+  e.target.classList.toggle("active", shuffled);
+  buildQuestionList();
+  renderQuestion(order.indexOf(viewing));
 });
 
 // "Open in Google Maps" — keep the link pointed at the current view
@@ -172,6 +200,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+resetOrder();
 buildQuestionList();
 renderQuestion(0);
 syncGmapsLink();

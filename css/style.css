@@ -67,6 +67,10 @@ button:hover { background: #2563eb; }
 }
 #question-counter { font-size: 13px; color: #9aa7bd; }
 
+#shuffle-btn { background: #27324a; }
+#shuffle-btn.active { background: #16a34a; }
+#shuffle-btn.active:hover { background: #15803d; }
+
 #question-list { display: flex; flex-direction: column; gap: 6px; }
 #question-list button {
   background: #27324a;
