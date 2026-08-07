@@ -17,7 +17,6 @@ No build step. Serve the directory statically and open it:
 ```bash
 just run    # serve at http://localhost:8642/
 just open   # serve + open in browser
-just report # open the verification report
 ```
 
 (Or without just: `python3 -m http.server 8642`.)

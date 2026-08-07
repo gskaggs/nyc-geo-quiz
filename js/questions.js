@@ -22,6 +22,52 @@
 
 const QUESTIONS = [
   {
+    id: "landmark-flatiron",
+    type: "landmark",
+    prompt: "What landmark is at the highlighted point?",
+    answer: "Flatiron Building",
+    // Real OSM position (via Nominatim): 175 5th Ave
+    target: { type: "Point", coordinates: [-73.98964, 40.74106] },
+    // Preference: landmark questions reveal the nearby crossroads
+    context: [
+      { name: "Fifth Ave", labelAt: [40.7398, -73.9901], kind: "street" },
+      { name: "Broadway", labelAt: [40.7425, -73.9886], kind: "street" },
+      { name: "E 23rd St", labelAt: [40.7399, -73.9868], kind: "street" },
+      { name: "W 23rd St", labelAt: [40.7419, -73.9931], kind: "street" }
+    ],
+    view: { center: [40.7411, -73.9894], zoom: 16 }
+  },
+
+  {
+    id: "street-st-marks",
+    type: "street",
+    prompt: "What street is highlighted?",
+    answer: "St Marks Place",
+    // Real OSM geometry (via Nominatim), 3rd Ave → 1st Ave, East Village
+    target: {
+      type: "MultiLineString",
+      coordinates: [
+        [
+          [-73.987665, 40.728604], [-73.987551, 40.728556],
+          [-73.985439, 40.727655], [-73.985307, 40.727599]
+        ],
+        [
+          [-73.985307, 40.727599], [-73.985175, 40.727544],
+          [-73.983198, 40.726712], [-73.98309, 40.726666]
+        ]
+      ]
+    },
+    // Preference: street questions reveal nearby streets
+    context: [
+      { name: "3rd Ave", labelAt: [40.7300, -73.9882], kind: "street" },
+      { name: "2nd Ave", labelAt: [40.7297, -73.9861], kind: "street" },
+      { name: "E 9th St", labelAt: [40.7290, -73.9868], kind: "street" },
+      { name: "E 7th St", labelAt: [40.7273, -73.9866], kind: "street" }
+    ],
+    view: { center: [40.7277, -73.9856], zoom: 16 }
+  },
+
+  {
     id: "borough-staten-island",
     type: "borough",
     prompt: "What borough is highlighted?",
@@ -112,10 +158,11 @@ const QUESTIONS = [
     prompt: "What landmark is at the highlighted point?",
     answer: "Museum of Modern Art (MoMA)",
     target: { type: "Point", coordinates: [-73.97744, 40.76143] },
+    // Preference: landmark questions reveal the nearby crossroads
     context: [
-      { name: "Radio City Music Hall", labelAt: [40.75998, -73.9799], kind: "landmark" },
-      { name: "St. Patrick's Cathedral", labelAt: [40.75847, -73.97611], kind: "landmark" },
-      { name: "Rockefeller Center", labelAt: [40.75874, -73.97867], kind: "landmark" }
+      { name: "W 53rd St", labelAt: [40.7619, -73.9793], kind: "street" },
+      { name: "Fifth Ave", labelAt: [40.7597, -73.9749], kind: "street" },
+      { name: "Sixth Ave", labelAt: [40.7608, -73.9808], kind: "street" }
     ],
     view: { center: [40.7604, -73.9778], zoom: 16 }
   }

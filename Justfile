@@ -14,7 +14,3 @@ run:
 open:
     (sleep 1 && open http://localhost:{{port}}/) &
     python3 -m http.server {{port}}
-
-# Open the verification report
-report:
-    open report/report.html
