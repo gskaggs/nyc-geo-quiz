@@ -150,6 +150,15 @@ document.getElementById("reveal-btn").addEventListener("click", () => {
   document.getElementById("answer").classList.remove("hidden");
 });
 
+// "Open in Google Maps" — keep the link pointed at the current view
+const gmapsBtn = document.getElementById("gmaps-btn");
+function syncGmapsLink() {
+  const c = map.getCenter();
+  const z = Math.round(map.getZoom());
+  gmapsBtn.href = `https://www.google.com/maps/@${c.lat.toFixed(6)},${c.lng.toFixed(6)},${z}z`;
+}
+map.on("moveend", syncGmapsLink);
+
 // Keyboard: space/enter reveals answer, then advances to next question
 document.addEventListener("keydown", (e) => {
   if (e.key === " " || e.key === "Enter") {
@@ -165,3 +174,4 @@ document.addEventListener("keydown", (e) => {
 
 buildQuestionList();
 renderQuestion(0);
+syncGmapsLink();
