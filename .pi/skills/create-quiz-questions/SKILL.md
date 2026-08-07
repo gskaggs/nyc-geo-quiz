@@ -73,15 +73,13 @@ user can orient without the answer being given away.
 
 ## Sourcing accurate geometry (in order of preference)
 
-1. **Streets — always use real OSM geometry, never eyeball a polyline.** A hand-drawn line
-   will visibly miss the basemap street. Nominatim's structured street search returns real
-   LineStrings:
-   ```bash
-   curl -s -A 'nyc-geo-quiz/0.1 (dev)' \
-     'https://nominatim.openstreetmap.org/search?street=Prince+Street&city=New+York&format=json&polygon_geojson=1&limit=5'
-   ```
-   Filter results by borough in `display_name` (street names repeat across boroughs!),
-   take `geojson.coordinates`, round to 6 decimals. Multiple ways → `MultiLineString`.
+1. **Streets — always use real OSM geometry, never eyeball a polyline.** Use an Overpass
+   `around` query centered on the street's midpoint with a radius covering the whole
+   stretch you want highlighted (see the Overpass recipe above; radius ~1200 covered all
+   of Canal St). **Do not use Nominatim's street search for targets**: it returns an
+   arbitrary subset of the street's ways, which once rendered Canal St as four
+   disconnected scraps with big gaps. Round to 6 decimals; multiple ways →
+   `MultiLineString` (segment order doesn't matter).
 2. **Boroughs / large areas** — same query with `q=<name>` plus
    `polygon_threshold=0.002` for a simplified real polygon.
 3. **Landmarks** — Nominatim `q=<landmark>, New York`, take `lat`/`lon`. Sanity-check the
