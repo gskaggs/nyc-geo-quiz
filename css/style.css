@@ -71,7 +71,18 @@ button:hover { background: #2563eb; }
 #shuffle-btn.active { background: #16a34a; }
 #shuffle-btn.active:hover { background: #15803d; }
 
-#question-list { display: flex; flex-direction: column; gap: 6px; }
+#list-toggle {
+  background: transparent;
+  text-align: left;
+  color: #9aa7bd;
+  padding: 4px 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+#list-toggle:hover { background: transparent; color: #eef1f6; }
+
+#question-list { display: none; flex-direction: column; gap: 6px; }
+#question-list.open { display: flex; }
 #question-list button {
   background: #27324a;
   text-align: left;

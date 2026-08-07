@@ -29,9 +29,9 @@ let questionLayer = L.layerGroup().addTo(map);
 let hoverLayer = L.layerGroup().addTo(map);
 let currentIndex = 0;
 
-// Display order over QUESTIONS: identity by default, shuffled when enabled.
+// Display order over QUESTIONS: shuffled by default, original when disabled.
 let order = [];
-let shuffled = false;
+let shuffled = true;
 
 function resetOrder() {
   order = QUESTIONS.map((_, i) => i);
@@ -166,16 +166,22 @@ document.getElementById("reveal-btn").addEventListener("click", () => {
   document.getElementById("answer").classList.remove("hidden");
 });
 
-// Shuffle toggle: on = random order, off = original order. The question being
-// viewed stays the same; only its position in the deck changes.
+// Shuffle toggle: on = random order, off = original order. Either way the
+// deck restarts from the first question of the new order.
 document.getElementById("shuffle-btn").addEventListener("click", (e) => {
-  const viewing = order[currentIndex];
   shuffled = !shuffled;
   resetOrder();
   if (shuffled) shuffleOrder();
   e.target.classList.toggle("active", shuffled);
   buildQuestionList();
-  renderQuestion(order.indexOf(viewing));
+  renderQuestion(0);
+});
+
+// Collapsible question list (hidden by default)
+document.getElementById("list-toggle").addEventListener("click", (e) => {
+  const list = document.getElementById("question-list");
+  const open = list.classList.toggle("open");
+  e.target.textContent = open ? "Questions \u25be" : "Questions \u25b8";
 });
 
 // "Open in Google Maps" — keep the link pointed at the current view
@@ -201,6 +207,10 @@ document.addEventListener("keydown", (e) => {
 });
 
 resetOrder();
+if (shuffled) {
+  shuffleOrder();
+  document.getElementById("shuffle-btn").classList.add("active");
+}
 buildQuestionList();
 renderQuestion(0);
 syncGmapsLink();
