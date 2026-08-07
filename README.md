@@ -15,9 +15,12 @@ of NYC with **partial information**:
 No build step. Serve the directory statically and open it:
 
 ```bash
-python3 -m http.server 8642
-# → http://localhost:8642/
+just run    # serve at http://localhost:8642/
+just open   # serve + open in browser
+just report # open the verification report
 ```
+
+(Or without just: `python3 -m http.server 8642`.)
 
 (Requires network access for map tiles and the Leaflet CDN.)
 
@@ -32,6 +35,7 @@ python3 -m http.server 8642
 ## Structure
 
 ```
+Justfile          run / open / report recipes
 index.html        app shell (sidebar + map)
 css/style.css     layout, highlight + label styles
 js/questions.js   the question data model + sample question bank
