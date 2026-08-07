@@ -97,5 +97,18 @@ document.getElementById("reveal-btn").addEventListener("click", () => {
   document.getElementById("answer").classList.remove("hidden");
 });
 
+// Keyboard: space/enter reveals answer, then advances to next question
+document.addEventListener("keydown", (e) => {
+  if (e.key === " " || e.key === "Enter") {
+    e.preventDefault();
+    const answerEl = document.getElementById("answer");
+    if (answerEl.classList.contains("hidden")) {
+      answerEl.classList.remove("hidden");
+    } else {
+      renderQuestion(currentIndex + 1);
+    }
+  }
+});
+
 buildQuestionList();
 renderQuestion(0);

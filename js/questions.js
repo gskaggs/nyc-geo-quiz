@@ -22,6 +22,96 @@
 
 const QUESTIONS = [
   {
+    id: "landmark-empire-state",
+    type: "landmark",
+    prompt: "What landmark is at the highlighted point?",
+    answer: "Empire State Building",
+    target: { type: "Point", coordinates: [-73.9857, 40.7484] },
+    context: [
+      { name: "W 34th St", labelAt: [40.7494, -73.9878], kind: "street" },
+      { name: "Fifth Ave", labelAt: [40.7470, -73.9843], kind: "street" },
+      { name: "Broadway", labelAt: [40.7502, -73.9886], kind: "street" },
+      { name: "Sixth Ave", labelAt: [40.7495, -73.9903], kind: "street" }
+    ],
+    view: { center: [40.7487, -73.9867], zoom: 16 }
+  },
+
+  {
+    id: "landmark-grand-central",
+    type: "landmark",
+    prompt: "What landmark is at the highlighted point?",
+    answer: "Grand Central Terminal",
+    target: { type: "Point", coordinates: [-73.9773, 40.7527] },
+    context: [
+      { name: "E 42nd St", labelAt: [40.7519, -73.9750], kind: "street" },
+      { name: "Park Ave", labelAt: [40.7540, -73.9764], kind: "street" },
+      { name: "Lexington Ave", labelAt: [40.7533, -73.9739], kind: "street" },
+      { name: "Madison Ave", labelAt: [40.7538, -73.9795], kind: "street" }
+    ],
+    view: { center: [40.7530, -73.9768], zoom: 16 }
+  },
+
+  {
+    id: "borough-brooklyn",
+    type: "borough",
+    prompt: "What borough is highlighted?",
+    answer: "Brooklyn",
+    target: {
+      type: "Polygon",
+      coordinates: [[[-74.05669, 40.62704], [-74.04157, 40.603], [-74.03511, 40.57819],
+        [-74.03805, 40.55034], [-73.87895, 40.57445], [-73.84978, 40.5882],
+        [-73.83424, 40.60679], [-73.83294, 40.62898], [-73.84803, 40.64383],
+        [-73.85514, 40.64287], [-73.86354, 40.6583], [-73.8557, 40.66371],
+        [-73.85763, 40.67166], [-73.86603, 40.68192], [-73.86907, 40.6953],
+        [-73.89648, 40.68232], [-73.90446, 40.6958], [-73.9219, 40.70939],
+        [-73.92921, 40.72774], [-73.95525, 40.73943], [-73.96255, 40.73644],
+        [-73.96172, 40.72487], [-73.9679, 40.71732], [-73.96931, 40.70547],
+        [-73.97226, 40.7091], [-73.99599, 40.70377], [-74.00829, 40.68644],
+        [-74.01958, 40.67965], [-74.03544, 40.68512], [-74.05577, 40.65147],
+        [-74.05669, 40.62704]]]
+    },
+    context: [
+      { name: "Manhattan", labelAt: [40.758, -73.975], kind: "area" },
+      { name: "Queens", labelAt: [40.735, -73.86], kind: "area" },
+      { name: "Staten Island", labelAt: [40.58, -74.15], kind: "area" }
+    ],
+    view: { center: [40.65, -73.95], zoom: 10 }
+  },
+
+  {
+    id: "street-canal",
+    type: "street",
+    prompt: "What street is highlighted?",
+    answer: "Canal Street",
+    target: {
+      type: "MultiLineString",
+      coordinates: [
+        [[-73.990228, 40.714421], [-73.990373, 40.714447], [-73.990663, 40.714533],
+         [-73.991064, 40.714656], [-73.991128, 40.714676]],
+        [[-73.99545, 40.716016], [-73.995502, 40.716106], [-73.995699, 40.716459],
+         [-73.995719, 40.716486], [-73.995738, 40.71651], [-73.995771, 40.716539],
+         [-73.995807, 40.716565], [-73.995827, 40.716586], [-73.995838, 40.716602],
+         [-73.995849, 40.716608]],
+        [[-73.999309, 40.717554], [-73.999363, 40.717593], [-73.99983, 40.717931],
+         [-73.999882, 40.717968], [-73.999953, 40.718019], [-74.000037, 40.718079],
+         [-74.000097, 40.718121], [-74.00041, 40.718344], [-74.000454, 40.718376],
+         [-74.000552, 40.718449], [-74.000618, 40.718499], [-74.000671, 40.718538],
+         [-74.000934, 40.718726], [-74.001268, 40.718964]],
+        [[-74.007929, 40.723763], [-74.008033, 40.723845], [-74.00848, 40.724179],
+         [-74.008544, 40.724226], [-74.008671, 40.724316], [-74.008813, 40.72442],
+         [-74.008883, 40.724472], [-74.008948, 40.724519]]
+      ]
+    },
+    context: [
+      { name: "Broadway", labelAt: [40.7172, -74.0025], kind: "street" },
+      { name: "Bowery", labelAt: [40.7156, -73.9942], kind: "street" },
+      { name: "Hudson St", labelAt: [40.7225, -74.0065], kind: "street" },
+      { name: "Walker St", labelAt: [40.7186, -74.0010], kind: "street" }
+    ],
+    view: { center: [40.7185, -74.0000], zoom: 15 }
+  },
+
+  {
     id: "landmark-flatiron",
     type: "landmark",
     prompt: "What landmark is at the highlighted point?",
