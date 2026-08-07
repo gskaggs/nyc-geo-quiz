@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>NYC Geo Quiz — Scaffolding Verification Report</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 960px; margin: 40px auto; padding: 0 20px; color: #1f2937; line-height: 1.55; }
+  h1 { border-bottom: 3px solid #3b82f6; padding-bottom: 8px; }
+  h2 { margin-top: 44px; color: #1e3a8a; }
+  img { max-width: 100%; border: 1px solid #d1d5db; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  figure { margin: 16px 0 32px; }
+  figcaption { font-size: 13px; color: #6b7280; margin-top: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border: 1px solid #d1d5db; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #eff6ff; }
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .ok { color: #15803d; font-weight: 700; }
+  .note { background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>NYC Geo Quiz — Scaffolding Verification Report</h1>
+
+<p>This report demonstrates the scaffolding and core modules for a web app that
+teaches NYC geography by presenting map questions with <strong>partial
+information</strong>: the target feature is highlighted but never named, while
+surrounding context features are named but not highlighted. All screenshots
+below were captured from the running app (<code>python3 -m http.server 8642</code>,
+driven by a real Chrome instance).</p>
+
+<h2>1. Library research &amp; choice</h2>
+<table>
+  <tr><th>Option</th><th>Verdict</th><th>Reasoning</th></tr>
+  <tr><td><strong>Leaflet 1.9</strong> + CARTO <code>light_nolabels</code> tiles</td>
+      <td class="ok">CHOSEN</td>
+      <td>Lightweight, mature, trivial GeoJSON overlays. The decisive factor is the
+      <em>label-free basemap</em>: tiles draw every street/park/building shape but contain
+      zero text, so the app controls exactly which names are visible — precisely the
+      "partial information" requirement. Both the CDN and tile server were validated
+      reachable before building.</td></tr>
+  <tr><td>MapLibre GL</td><td>rejected</td>
+      <td>Vector tiles would allow toggling individual label layers, but require style-spec
+      surgery and a heavier runtime — more machinery than the requirement needs.</td></tr>
+  <tr><td>OpenLayers</td><td>rejected</td>
+      <td>Very capable but a verbose API; overkill for a quiz view.</td></tr>
+</table>
+
+<h2>2. Question data model (<code>js/questions.js</code>)</h2>
+<p>The only data model in scope: a <code>Question</code> fully describes one prompt.</p>
+<pre><code>{
+  id:      string,
+  type:    'borough' | 'neighborhood' | 'street' | 'landmark',
+  prompt:  string,
+  answer:  string,                    // never drawn on the map
+  target:  GeoJSON geometry,          // Polygon / (Multi)LineString / Point — highlighted, unnamed
+  context: [{ name, labelAt: [lat,lng], kind }],  // named, NOT highlighted (0..n allowed)
+  view:    { center: [lat,lng], zoom }
+}</code></pre>
+<p><code>js/app.js</code> renders any such question: highlight style is picked from the
+target geometry type, and each context feature becomes a text label over the
+label-free basemap.</p>
+
+<h2>3. Requirement: "What borough is this?"</h2>
+<p>Staten Island highlighted (real, simplified OSM polygon) with no name; Brooklyn,
+Manhattan, and New Jersey labeled as unhighlighted context.</p>
+<figure>
+  <img src="img/01-borough.png" alt="Borough question" />
+  <figcaption>Borough question — target unnamed, neighbors named.</figcaption>
+</figure>
+
+<h2>4. Requirement: neighborhood highlighted, neighbors named (the Nolita case)</h2>
+<p>Nolita's polygon is highlighted with no label, while SoHo, NoHo, Little Italy and
+the Lower East Side are labeled but not highlighted — exactly the requested behavior.
+The model supports zero, one, or several context neighbors per question.</p>
+<figure>
+  <img src="img/02-neighborhood.png" alt="Neighborhood question" />
+  <figcaption>Neighborhood question — "What neighborhood is highlighted?" (answer: Nolita).</figcaption>
+</figure>
+
+<h2>5. Requirement: street highlighted with no name, surrounding streets named</h2>
+<p>Prince Street (real OSM geometry fetched via Nominatim, so the highlight sits exactly
+on the basemap street) is highlighted unnamed; W&nbsp;Houston&nbsp;St, Spring&nbsp;St, Broadway and
+Lafayette&nbsp;St carry labels without highlighting.</p>
+<figure>
+  <img src="img/03-street.png" alt="Street question" />
+  <figcaption>Street question — "What street is highlighted?" (answer: Prince Street).</figcaption>
+</figure>
+
+<h2>6. Requirement: landmark pinpoint with no name</h2>
+<p>An unnamed pin marks MoMA; Radio City Music Hall, Rockefeller Center and
+St.&nbsp;Patrick's Cathedral are labeled context landmarks.</p>
+<figure>
+  <img src="img/04-landmark.png" alt="Landmark question" />
+  <figcaption>Landmark question — "What landmark is at the highlighted point?" (answer: MoMA).</figcaption>
+</figure>
+
+<h2>7. Reveal answer</h2>
+<p>The answer is held out of the map entirely and revealed on demand in the sidebar.</p>
+<figure>
+  <img src="img/05-reveal.png" alt="Reveal answer" />
+  <figcaption>After clicking <em>Reveal answer</em> — "Museum of Modern Art (MoMA)" shown in green.</figcaption>
+</figure>
+
+<h2>8. Requirement: zoom in and out</h2>
+<p>Standard Leaflet zoom (buttons, scroll wheel, pinch). Verified by driving the zoom
+control in the live browser: <code>map.getZoom()</code> reported 16&nbsp;→&nbsp;17 and the tiles
+re-rendered with the highlight still aligned.</p>
+<figure>
+  <img src="img/06-zoom-in.png" alt="Zoomed-in street question" />
+  <figcaption>Street question after zooming in one level — overlay stays registered to the basemap.</figcaption>
+</figure>
+
+<h2>9. Verification summary</h2>
+<table>
+  <tr><th>Requirement</th><th>Status</th><th>Evidence</th></tr>
+  <tr><td>Git repo + README</td><td class="ok">DONE</td><td><code>git log</code>; <code>README.md</code> documents run instructions, library research, data model.</td></tr>
+  <tr><td>Library researched, picked, validated</td><td class="ok">DONE</td><td>Section 1; CDN + tile server HTTP 200 checks; all screenshots render live tiles.</td></tr>
+  <tr><td>Borough / street / neighborhood / landmark questions</td><td class="ok">DONE</td><td>Sections 3–6.</td></tr>
+  <tr><td>Target highlighted, unnamed; context named, unhighlighted</td><td class="ok">DONE</td><td>Every screenshot; enabled by the label-free basemap.</td></tr>
+  <tr><td>Zoom in/out</td><td class="ok">DONE</td><td>Section 8.</td></tr>
+  <tr><td>Question data model only (no progress tracking)</td><td class="ok">DONE</td><td>Section 2; app has no scoring/tracking code.</td></tr>
+</table>
+
+<div class="note"><strong>Known scaffolding limits:</strong> the Nolita polygon is
+hand-approximated (OSM has no Nolita area); the question bank is 4 samples defined
+inline. Future work: generate questions from NYC Open Data / OSM Overpass (Overpass
+was returning 504s during this session), and add answer input + progress tracking.</div>
+
+</body>
+</html>

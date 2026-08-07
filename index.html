@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NYC Geography Quiz</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="sidebar">
+    <h1>NYC Geo Quiz</h1>
+    <div id="question-card">
+      <div id="question-type" class="pill"></div>
+      <p id="question-prompt"></p>
+      <div id="answer" class="hidden"></div>
+      <button id="reveal-btn">Reveal answer</button>
+    </div>
+    <div id="nav">
+      <button id="prev-btn">&larr; Prev</button>
+      <span id="question-counter"></span>
+      <button id="next-btn">Next &rarr;</button>
+    </div>
+    <div id="question-list"></div>
+  </div>
+  <div id="map"></div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
