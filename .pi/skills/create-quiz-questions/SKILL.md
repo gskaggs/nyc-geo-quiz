@@ -19,10 +19,31 @@ context feature teaches them something wrong**, so accuracy verification is not 
   prompt:  "What street is highlighted?",
   answer:  "Prince Street",                 // never rendered on the map
   target:  { /* GeoJSON geometry */ },      // Polygon | (Multi)LineString | Point
-  context: [{ name, labelAt: [lat, lng], kind: "street"|"area"|"landmark" }],
+  context: [{ name, labelAt: [lat, lng], kind: "street"|"area"|"landmark",
+              geometry: { /* GeoJSON, street contexts only */ } }],
   view:    { center: [lat, lng], zoom }     // frame target + all context labels
 }
 ```
+
+**Street context features MUST carry `geometry`** (the street's real OSM shape near the
+view, as a compact one-line MultiLineString). The app uses it to:
+- **snap** the label onto the nearest point of the street (so `labelAt` only needs to be
+  approximately right — it picks which part of the street the label sits on),
+- **rotate** the label inline with the street's local bearing,
+- **highlight the street on label hover** (temporary blue overlay).
+
+Fetch it from Overpass with an `around` query centered on the intended label position
+(the `maps.mail.ru` mirror is reliable; `overpass-api.de` often 504s):
+
+```bash
+curl -s 'https://maps.mail.ru/osm/tools/overpass/api/interpreter' --data-urlencode \
+  'data=[out:json][timeout:25];way["highway"]["name"="West 34th Street"](around:420,40.7494,-73.9878);out geom;'
+```
+
+Use the full OSM street name ("West 34th Street", "5th Avenue" — not "W 34th St");
+the `name:` label field keeps the short colloquial form. Skip ways tagged
+`highway=service|footway|cycleway|motorway_link`. Round coords to 6 decimals. Add
+~1s sleeps between Overpass calls and expect to retry on rate limits.
 
 ⚠️ **Coordinate-order trap:** GeoJSON `target` coordinates are `[lng, lat]`, but Leaflet's
 `labelAt` and `view.center` are `[lat, lng]`. For NYC, lat ≈ 40.x and lng ≈ -74.x /
@@ -64,9 +85,10 @@ user can orient without the answer being given away.
 
 Rate-limit courtesy: send a descriptive `User-Agent` and `sleep 1` between Nominatim calls.
 
-Context **label positions** are hand-placed: put a street label *on* that street a block or
-two away from the target, and an area label near that area's center. Derive positions from
-known intersections, not guesses.
+**Label positions:** street labels are auto-snapped to their `geometry`, so `labelAt` just
+chooses roughly where along the street the label lands — put it a block or two away from
+the target, away from other labels. Area/landmark labels have no geometry and render at
+`labelAt` exactly (centered), so derive those from known positions, not guesses.
 
 ## Mandatory accuracy verification (screenshot loop)
 
@@ -85,7 +107,10 @@ Never ship a question without seeing it rendered:
      the street's casing; polygon edges follow the bounding streets; pin is on the right
      block).
    - Each context label sits on/inside the feature it names — cross-check against a real
-     map source if unsure, not memory.
+     map source if unsure, not memory. Street labels should render rotated inline with
+     their street; a horizontal street label usually means its `geometry` is missing.
+   - Hover a street label (dispatch a `mouseover` MouseEvent on its span via
+     `agent-browser eval`) and confirm the blue highlight traces the correct street.
    - No context label overlaps or crowds the target highlight.
    - The answer is NOT visible anywhere on the map.
    - The initial view frames the target and all context labels; nothing is cut off.

@@ -84,6 +84,9 @@ button:hover { background: #2563eb; }
   box-shadow: none;
 }
 .context-label span {
+  display: inline-block;
+  transform: translate(-50%, -50%);
+  cursor: default;
   font-size: 12px;
   font-weight: 600;
   color: #444;

@@ -26,18 +26,70 @@ L.tileLayer(TILE_URL, {
 }).addTo(map);
 
 let questionLayer = L.layerGroup().addTo(map);
+let hoverLayer = L.layerGroup().addTo(map);
 let currentIndex = 0;
+
+const HOVER_STYLE = { color: "#2563eb", weight: 6, opacity: 0.85 };
+
+/**
+ * Snap a label position onto the nearest point of a street geometry and
+ * compute the street's local screen bearing there (for inline label rotation).
+ * Returns { at: [lat, lng], angle: degrees in (-90, 90] }.
+ */
+function snapToStreet(geometry, labelAt) {
+  const [lat0, lng0] = labelAt;
+  const k = Math.cos((lat0 * Math.PI) / 180); // lon → local x scale
+  const px = lng0 * k, py = lat0;
+  const lines =
+    geometry.type === "LineString" ? [geometry.coordinates] : geometry.coordinates;
+  let best = null;
+  for (const line of lines) {
+    for (let i = 0; i + 1 < line.length; i++) {
+      const ax = line[i][0] * k, ay = line[i][1];
+      const bx = line[i + 1][0] * k, by = line[i + 1][1];
+      const dx = bx - ax, dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      const t = len2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / len2)) : 0;
+      const qx = ax + t * dx, qy = ay + t * dy;
+      const d2 = (px - qx) ** 2 + (py - qy) ** 2;
+      if (!best || d2 < best.d2) {
+        // screen angle: x → east, y → down (so negate dlat)
+        let angle = (Math.atan2(-dy, dx) * 180) / Math.PI;
+        if (angle > 90) angle -= 180;
+        if (angle <= -90) angle += 180;
+        best = { d2, at: [qy, qx / k], angle };
+      }
+    }
+  }
+  return best;
+}
 
 function contextLabel(feature) {
   const cls = feature.kind === "area" ? "context-label area-label" : "context-label";
-  return L.marker(feature.labelAt, {
-    interactive: false,
+  let at = feature.labelAt;
+  let angle = 0;
+  if (feature.geometry && feature.kind === "street") {
+    const snapped = snapToStreet(feature.geometry, feature.labelAt);
+    if (snapped) ({ at, angle } = snapped);
+  }
+  const marker = L.marker(at, {
+    interactive: Boolean(feature.geometry),
     icon: L.divIcon({
       className: cls,
-      html: `<span>${feature.name}</span>`,
+      html: `<span style="transform: translate(-50%, -50%) rotate(${angle.toFixed(1)}deg)">${feature.name}</span>`,
       iconSize: null,
     }),
   });
+  if (feature.geometry) {
+    marker.on("mouseover", () => {
+      hoverLayer.clearLayers();
+      hoverLayer.addLayer(
+        L.geoJSON(feature.geometry, { interactive: false, style: HOVER_STYLE })
+      );
+    });
+    marker.on("mouseout", () => hoverLayer.clearLayers());
+  }
+  return marker;
 }
 
 function targetLayer(geometry) {
@@ -60,6 +112,7 @@ function renderQuestion(index) {
   const q = QUESTIONS[currentIndex];
 
   questionLayer.clearLayers();
+  hoverLayer.clearLayers();
   questionLayer.addLayer(targetLayer(q.target));
   q.context.forEach((c) => questionLayer.addLayer(contextLabel(c)));
   map.setView(q.view.center, q.view.zoom);
